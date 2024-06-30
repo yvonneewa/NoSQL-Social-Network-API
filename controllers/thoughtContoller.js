@@ -1,17 +1,17 @@
-const { User, Thought } = require("../models");
+const { User, Thought } = require("../models/");
 
 module.exports = {
-  // Get all thoughts
+  // this will Get all thoughts
   async getThoughts(req, res) {
     try {
-      const thoughts = await Thought.find().populate("user");
+      const thoughts = await Thought.find().populate("reactions");
       res.json(thoughts);
     } catch (err) {
       res.status(500).json(err);
     }
   },
 
-  // Get a single thought by its ID
+  // this will Get a single thought by its ID
   async getSingleThought(req, res) {
     try {
       const thought = await Thought.findOne({ _id: req.params.thoughtId }).populate('user');
@@ -26,24 +26,23 @@ module.exports = {
     }
   },
 
-  // Delete a thought by its ID
-  async deleteThought(req, res) {
+
+  async createThought (req, res) {
     try {
-      const thought = await Thought.findOneAndDelete({ _id: req.params.thoughtId });
-
-      if (!thought) {
-        return res.status(404).json({ message: 'No thought with that ID' });
-      }
-
-      await User.deleteMany({ _id: { $in: thought.user } });
-
-      res.json({ message: 'Thought and associated users deleted' });
+      const thought = await Thought.create(req.body);
+      
+      // Update user's thoughts array
+      await User.findByIdAndUpdate(req.body.userId, { $push: { thoughts: thought._id } });
+  
+      res.json(thought);
     } catch (err) {
       res.status(500).json(err);
     }
   },
 
-  // Update a thought by its ID
+
+
+  // this will Update a thought by its ID
   async updateThought(req, res) {
     try {
       const thought = await Thought.findOneAndUpdate(
@@ -62,7 +61,27 @@ module.exports = {
     }
   },
 
-  // Add a reaction to a thought
+
+  // this will Delete a thought by its ID
+  async deleteThought(req, res) {
+    try {
+      const thought = await Thought.findOneAndDelete({ _id: req.params.thoughtId });
+
+      if (!thought) {
+        return res.status(404).json({ message: 'No thought with that ID' });
+      }
+
+      await User.deleteMany({ _id: { $in: thought.user } });
+
+      res.json({ message: 'Thought and associated users deleted' });
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+
+
+
+  // this will Add a reaction to a thought
   async addReaction(req, res) {
     try {
       const { thoughtId } = req.params;
@@ -89,7 +108,7 @@ module.exports = {
     }
   },
 
-  // Delete a reaction from a thought
+  // this will Delete a reaction from a thought
   async deleteReaction(req, res) {
     try {
       const { thoughtId, reactionId } = req.params;

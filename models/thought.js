@@ -1,12 +1,5 @@
-
-
-const router = require('express').Router();
-const { addReaction, deleteReaction } = require('../../controllers/thoughtController');
-
-router.route('/:thoughtId/reactions').post(addReaction);
-router.route('/:thoughtId/reactions/:reactionId').delete(deleteReaction);
-
-module.exports = router;
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 
 const reactionSchema = new Schema({
@@ -41,7 +34,7 @@ const thoughtSchema = new Schema({
     type: String,
     required: true,
   },
-  reactions: [reactionSchema], // Array of reactionSchema objects
+  reactions: [reactionSchema],
 });
 
 thoughtSchema.virtual('reactionCount').get(function () {
