@@ -1,14 +1,14 @@
-const { ObjectId } = require('mongoose').Types;
-const { User, Thought } = require('../models');
+const { ObjectId } = require("mongoose").Types;
+const { User, Thought } = require("../models");
 
 module.exports = {
-  // Get all users
-  async getUsers(req, res) {
+  // this will Get all users
+  async getAllUsers(req, res) {
     try {
-      const users = await User.find();
+      const users = await User.find().populate("friends");
       const userObj = {
         users,
-        headCount: users.length, 
+        headCount: users.length,
       };
       return res.json(userObj);
     } catch (err) {
@@ -17,13 +17,15 @@ module.exports = {
     }
   },
 
-  // Get a single user by ID
+  //this will Get a single user by ID
   async getSingleUser(req, res) {
     try {
-      const user = await User.findOne({ _id: req.params.userId }).select('-__v').lean();
+      const user = await User.findOne({ _id: req.params.userId })
+        .select("-__v")
+        .lean();
 
       if (!user) {
-        return res.status(404).json({ message: 'No user with that ID' });
+        return res.status(404).json({ message: "No user with that ID" });
       }
 
       res.json({
@@ -35,7 +37,7 @@ module.exports = {
     }
   },
 
-  // Create a new user
+  // this will Create a new user
   async createUser(req, res) {
     try {
       const user = await User.create(req.body);
@@ -46,18 +48,40 @@ module.exports = {
     }
   },
 
-  // Delete a user and remove associated thoughts
+  async updateUser(req, res) {
+    try {
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $set: req.body },
+        { new: true }
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: "No user with that ID" });
+      }
+  
+      res.json(updatedUser);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  },
+  
+
+  // this will Delete a user and remove associated thoughts
   async deleteUser(req, res) {
     try {
       const user = await User.findOneAndDelete({ _id: req.params.userId });
 
       if (!user) {
-        return res.status(404).json({ message: 'No such user exists' });
+        return res.status(404).json({ message: "No such user exists" });
       }
 
       const thoughts = await Thought.deleteMany({ username: user.username });
 
-      res.json({ message: 'User and associated thoughts deleted successfully' });
+      res.json({
+        message: "User and associated thoughts deleted successfully",
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json(err);
@@ -79,13 +103,13 @@ module.exports = {
       );
 
       if (!updatedUser) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: "User not found" });
       }
 
       res.json(updatedUser);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Server error' });
+      res.status(500).json({ message: "Server error" });
     }
   },
 
@@ -104,13 +128,13 @@ module.exports = {
       );
 
       if (!updatedUser) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: "User not found" });
       }
 
       res.json(updatedUser);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Server error' });
+      res.status(500).json({ message: "Server error" });
     }
   },
 };

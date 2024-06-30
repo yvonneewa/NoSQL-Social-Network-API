@@ -1,46 +1,52 @@
-const { User, Thought } = require("../models/");
+const { User, Thought } = require("../models");
 
 module.exports = {
-  // this will Get all thoughts
-  async getThoughts(req, res) {
+  // this will Get all thoughts with the reactions
+  async getAllThoughts(req, res) {
     try {
       const thoughts = await Thought.find().populate("reactions");
       res.json(thoughts);
     } catch (err) {
-      res.status(500).json(err);
+      console.error(err);
+      g;
+      res.status(500).json({ message: "Server error" });
     }
   },
 
   // this will Get a single thought by its ID
   async getSingleThought(req, res) {
     try {
-      const thought = await Thought.findOne({ _id: req.params.thoughtId }).populate('user');
+      const thought = await Thought.findOne({
+        _id: req.params.thoughtId,
+      }).populate("username");
 
       if (!thought) {
-        return res.status(404).json({ message: 'No thought with that ID' });
+        return res.status(404).json({ message: "No thought with that ID" });
       }
 
       res.json(thought);
     } catch (err) {
-      res.status(500).json(err);
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
     }
   },
 
-
-  async createThought (req, res) {
+  // this will Create a new thought
+  async createThought(req, res) {
     try {
       const thought = await Thought.create(req.body);
-      
-      // Update user's thoughts array
-      await User.findByIdAndUpdate(req.body.userId, { $push: { thoughts: thought._id } });
-  
+
+    
+      await User.findByIdAndUpdate(req.body.userId, {
+        $push: { thoughts: thought._id },
+      });
+
       res.json(thought);
     } catch (err) {
-      res.status(500).json(err);
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
     }
   },
-
-
 
   // this will Update a thought by its ID
   async updateThought(req, res) {
@@ -52,34 +58,36 @@ module.exports = {
       );
 
       if (!thought) {
-        return res.status(404).json({ message: 'No thought with that ID' });
+        return res.status(404).json({ message: "No thought with that ID" });
       }
 
       res.json(thought);
     } catch (err) {
-      res.status(500).json(err);
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
     }
   },
 
-
-  // this will Delete a thought by its ID
+  // this will  Delete a thought by its ID
   async deleteThought(req, res) {
     try {
-      const thought = await Thought.findOneAndDelete({ _id: req.params.thoughtId });
+      const thought = await Thought.findOneAndDelete({
+        _id: req.params.thoughtId,
+      });
 
       if (!thought) {
-        return res.status(404).json({ message: 'No thought with that ID' });
+        return res.status(404).json({ message: "No thought with that ID" });
       }
 
+     
       await User.deleteMany({ _id: { $in: thought.user } });
 
-      res.json({ message: 'Thought and associated users deleted' });
+      res.json({ message: "Thought and associated users deleted" });
     } catch (err) {
-      res.status(500).json(err);
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
     }
   },
-
-
 
   // this will Add a reaction to a thought
   async addReaction(req, res) {
@@ -98,17 +106,17 @@ module.exports = {
       );
 
       if (!updatedThought) {
-        return res.status(404).json({ message: 'Thought not found' });
+        return res.status(404).json({ message: "Thought not found" });
       }
 
       res.json(updatedThought);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Server error' });
+      res.status(500).json({ message: "Server error" });
     }
   },
 
-  // this will Delete a reaction from a thought
+  // this wil Delete a reaction from a thought
   async deleteReaction(req, res) {
     try {
       const { thoughtId, reactionId } = req.params;
@@ -124,13 +132,13 @@ module.exports = {
       );
 
       if (!updatedThought) {
-        return res.status(404).json({ message: 'Thought not found' });
+        return res.status(404).json({ message: "Thought not found" });
       }
 
       res.json(updatedThought);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Server error' });
+      res.status(500).json({ message: "Server error" });
     }
   },
 };

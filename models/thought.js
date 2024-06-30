@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const dayjs = require("dayjs");
 const { Schema } = mongoose;
-
 
 const reactionSchema = new Schema({
   reactionBody: {
@@ -28,7 +28,10 @@ const thoughtSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    get: (timestamp) => dateFormat(timestamp),
+    get: (timestamp) => {
+      const formattedTimestamp = dayjs(timestamp).format("MM/DD/YYYY h:mm A");
+      return formattedTimestamp;
+    },
   },
   username: {
     type: String,
@@ -37,12 +40,12 @@ const thoughtSchema = new Schema({
   reactions: [reactionSchema],
 });
 
-thoughtSchema.virtual('reactionCount').get(function () {
+thoughtSchema.virtual("reactionCount").get(function () {
   return this.reactions.length;
 });
 
 const dateFormat = (timestamp) => new Date(timestamp).toLocaleDateString();
 
-const Thought = mongoose.model('Thought', thoughtSchema);
+const Thought = mongoose.model("Thought", thoughtSchema);
 
 module.exports = Thought;
