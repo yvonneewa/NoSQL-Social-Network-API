@@ -64,7 +64,7 @@ Reactions
 -DELETE /api/thoughts/:thoughtId/reactions/:reactionId: Remove a reaction from a thought by reaction ID
 
 
-![alt text](image.png)
+
 
 ## Walkthrough Video
 

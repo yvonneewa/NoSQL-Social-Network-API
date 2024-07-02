@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const { isEmail } = require('validator'); 
 
 const userSchema = new Schema({
   username: {
@@ -12,7 +13,12 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    trim: true,
     match: [/.+@.+\..+/, 'Please enter a valid email address'],
+    validate: {
+      validator: isEmail,
+      message: 'Invalid email address',
+    },
   },
   thoughts: [
     {
